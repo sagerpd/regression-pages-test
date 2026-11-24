@@ -14,7 +14,7 @@ project:
     - .nojekyll
 
 website:
-  title: "Bivariate Regression – Begleitmaterial (Test)"
+  title: "Testwebseite Buchprojekt"
   # Adresse der fertigen Seite: https://<benutzername>.github.io/<repo-name>/
   site-url: https://sagerpd.github.io/regression-pages-test/
   repo-url: https://github.com/sagerpd/regression-pages-test
