@@ -1,0 +1,75 @@
+---
+title: "Fiktives Beispiel 1: Bildung und Einkommen"
+subtitle: "Insert interesting subtitle here"
+nocite: |
+  @R-base, @wickham2016
+---
+
+# Packages und Daten
+
+Daten: fiktiver Datensatz mit 300 Befragten.
+
+```{r}
+#| label: setup
+#| message: false
+
+library(ggplot2)   # Grafiken (Wickham, 2016)
+library(here)      # Dateipfade relativ zum Projektordner
+
+befragung <- read.csv(here("Daten", "mock_befragung.csv"))
+head(befragung)
+```
+
+# Visualisierung
+
+@fig-streu zeigt den Zusammenhang zwischen Bildungsjahren und Einkommen:
+
+```{r}
+#| label: fig-streu
+#| fig-cap: "Bildung und Einkommen (fiktive Daten)"
+#| fig-alt: "Streudiagramm mit Bildungsjahren auf der x-Achse und Einkommen auf der y-Achse; die Punkte steigen von links unten nach rechts oben an, eine Regressionsgerade verläuft durch die Punktwolke."
+
+ggplot(befragung, aes(x = bildung, y = einkommen)) +
+  geom_jitter(width = 0.2, alpha = 0.5) +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, colour = "firebrick") +
+  labs(x = "Bildung in Jahren (UV)", y = "Einkommen in CHF (AV)") +
+  theme_minimal()
+```
+
+# Regressionsmodell
+
+```{r}
+#| label: modell
+
+modell <- lm(einkommen ~ bildung, data = befragung)
+summary(modell)
+```
+
+Pro zusätzlichem Bildungsjahr steigt das Einkommen im Mittel um
+`r round(coef(modell)["bildung"])` CHF. Das Modell erklärt
+`r round(100 * summary(modell)$r.squared)` % der Varianz des Einkommens.
+
+# Reproduktion der Buchabbildung
+
+Folgender Code erzeugt wie beim richtigen Projekt eine Abbildung für den Export. Er wird
+beim Rendern nicht ausgeführt, ist aber eingeklappt einsehbar.
+
+```{r}
+#| label: buchabbildung
+#| eval: false
+#| code-fold: true
+#| code-summary: "Code zur Abbildung 24a"
+
+abb <- ggplot(befragung, aes(x = bildung, y = einkommen)) +
+  geom_point(alpha = 0.4, size = 1) +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, colour = "black") +
+  labs(x = "Bildung in Jahren", y = "Einkommen in CHF") +
+  theme_classic(base_size = 10)
+
+ggsave(here("Abbildungen", "abb_3_2.eps"), abb, width = 12, height = 8, units = "cm")
+```
+
+# Literatur
+
+::: {#refs}
+:::

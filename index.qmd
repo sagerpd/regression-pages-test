@@ -1,0 +1,31 @@
+---
+title: "Webseite Test Github Pages"
+subtitle: "Subtitle: Test tEst teSt tesT"
+toc: false
+number-sections: false
+---
+
+::: {.callout-note}
+Dies ist eine **Testseite mit fiktiven Daten**. Sie dient  dazu, den Aufbau
+und die Veröffentlichung über GitHub Pages auszuprobieren.
+:::
+
+Auf dieser Seite finden Sie den R-Code für fiktive Beispiele und deren Abbildungen. Jede Seite zeigt Code, Ausgabe und Erläuterung nebeneinander.
+
+## Übersicht
+
+| Seite | Inhalt |
+|---|---|
+| [Bildung und Einkommen](01_Beispielanwendungen/einkommen_bildung.qmd) | Streudiagramm, lineare Regression |
+| [Alter und Lebenszufriedenheit](01_Beispielanwendungen/zufriedenheit_alter.qmd) | quadratische Regression |
+| [Simulierte Zusammenhänge](02_Illustrationen/simulationen.qmd) | Abbildungen mit simulierten Daten |
+
+## Selbst mit dem Code arbeiten
+
+1. Das Projekt über den Download-Button oben rechts als ZIP-Datei herunterladen
+   und entpacken.
+2. Daten einfügen (nicht in diesem Test, da nur simulierte Daten)
+3. Die Datei `regression-pages-test.Rproj` in RStudio öffnen.
+4. Eine `.qmd`-Datei öffnen und auf *Render* klicken.
+
+Alle Pfade im Code laufen über `here()`; ein `setwd()` ist nicht nötig.

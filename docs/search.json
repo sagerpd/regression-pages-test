@@ -1,0 +1,65 @@
+[
+  {
+    "objectID": "02_Illustrationen/simulationen.html",
+    "href": "02_Illustrationen/simulationen.html",
+    "title": "Simulierte Zusammenhänge",
+    "section": "",
+    "text": "1 Packages\n\nlibrary(ggplot2)   # Grafiken (Wickham, 2016)\n\n\n\n2 Unterschiedliche Erklärungskraft\nAlle drei Datensätze haben dieselbe wahre Steigung (0.5). Sie unterscheiden sich nur in der Streuung der Residuen und damit im R².\n\nset.seed(161)\nn &lt;- 150\nx &lt;- runif(n, 0, 10)\n\nstreuung &lt;- c(\"gering\" = 0.5, \"mittel\" = 1.5, \"gross\" = 3)\nsim &lt;- do.call(rbind, lapply(names(streuung), function(s) {\n  data.frame(x = x, y = 2 + 0.5 * x + rnorm(n, 0, streuung[[s]]), streuung = s)\n}))\nsim$streuung &lt;- factor(sim$streuung, levels = names(streuung))\n\n# R2 je Datensatz\nr2 &lt;- sapply(split(sim, sim$streuung),\n             function(d) summary(lm(y ~ x, data = d))$r.squared)\nround(r2, 2)\n\ngering mittel  gross \n  0.90   0.49   0.24 \n\n\n\nbeschriftung &lt;- data.frame(streuung = factor(names(r2), levels = names(streuung)),\n                           text = paste0(\"R² = \", round(r2, 2)))\n\nggplot(sim, aes(x, y)) +\n  geom_point(alpha = 0.4, size = 1) +\n  geom_smooth(method = \"lm\", formula = y ~ x, se = FALSE, colour = \"firebrick\") +\n  geom_text(data = beschriftung, aes(x = 1, y = 12, label = text),\n            hjust = 0, inherit.aes = FALSE) +\n  facet_wrap(~ streuung, labeller = labeller(streuung = function(s)\n    paste(\"Streuung\", s))) +\n  labs(x = \"X\", y = \"Y\") +\n  theme_minimal()\n\n\n\n\n\n\n\nAbbildung 1: Gleiche Steigung, unterschiedliches R² (simulierte Daten)\n\n\n\n\n\nDie Steigung ist in allen drei Fällen gleich, die Erklärungskraft aber nicht. Wie stark ein Zusammenhang ist, sagt also nichts darüber, wie gut er die Streuung der abhängigen Variable erklärt.\n\n\n3 Literatur\n\n\nR Core Team. (2026). R: A language and environment for statistical computing (Version 4.6.1) [Software]. R Foundation for Statistical Computing. https://doi.org/10.32614/R.manuals\n\n\nWickham, H. (2016). ggplot2: Elegant graphics for data analysis (2. Aufl.). Springer. https://doi.org/10.1007/978-3-319-24277-4",
+    "crumbs": [
+      "Illustrationen",
+      "Simulierte Zusammenhänge"
+    ]
+  },
+  {
+    "objectID": "01_Beispielanwendungen/einkommen_bildung.html",
+    "href": "01_Beispielanwendungen/einkommen_bildung.html",
+    "title": "Fiktives Beispiel 1: Bildung und Einkommen",
+    "section": "",
+    "text": "1 Packages und Daten\nDaten: fiktiver Datensatz mit 300 Befragten.\n\nlibrary(ggplot2)   # Grafiken (Wickham, 2016)\nlibrary(here)      # Dateipfade relativ zum Projektordner\n\nbefragung &lt;- read.csv(here(\"Daten\", \"mock_befragung.csv\"))\nhead(befragung)\n\n  id bildung alter einkommen zufriedenheit\n1  1      19    46      8060            10\n2  2      12    80      4570             8\n3  3      20    69     10260             8\n4  4      17    57      6410             7\n5  5      15    59      7570             8\n6  6      18    64      8350             9\n\n\n\n\n2 Visualisierung\nAbbildung 1 zeigt den Zusammenhang zwischen Bildungsjahren und Einkommen:\n\nggplot(befragung, aes(x = bildung, y = einkommen)) +\n  geom_jitter(width = 0.2, alpha = 0.5) +\n  geom_smooth(method = \"lm\", formula = y ~ x, se = FALSE, colour = \"firebrick\") +\n  labs(x = \"Bildung in Jahren (UV)\", y = \"Einkommen in CHF (AV)\") +\n  theme_minimal()\n\n\n\n\n\n\n\nAbbildung 1: Bildung und Einkommen (fiktive Daten)\n\n\n\n\n\n\n\n3 Regressionsmodell\n\nmodell &lt;- lm(einkommen ~ bildung, data = befragung)\nsummary(modell)\n\n\nCall:\nlm(formula = einkommen ~ bildung, data = befragung)\n\nResiduals:\n    Min      1Q  Median      3Q     Max \n-3215.5  -873.0    -5.1   854.7  3446.4 \n\nCoefficients:\n            Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)  1816.86     290.97   6.244 1.46e-09 ***\nbildung       326.98      19.88  16.445  &lt; 2e-16 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 1195 on 298 degrees of freedom\nMultiple R-squared:  0.4758,    Adjusted R-squared:  0.474 \nF-statistic: 270.5 on 1 and 298 DF,  p-value: &lt; 2.2e-16\n\n\nPro zusätzlichem Bildungsjahr steigt das Einkommen im Mittel um 327 CHF. Das Modell erklärt 48 % der Varianz des Einkommens.\n\n\n4 Reproduktion der Buchabbildung\nFolgender Code erzeugt wie beim richtigen Projekt eine Abbildung für den Export. Er wird beim Rendern nicht ausgeführt, ist aber eingeklappt einsehbar.\n\n\nCode zur Abbildung 24a\nabb &lt;- ggplot(befragung, aes(x = bildung, y = einkommen)) +\n  geom_point(alpha = 0.4, size = 1) +\n  geom_smooth(method = \"lm\", formula = y ~ x, se = FALSE, colour = \"black\") +\n  labs(x = \"Bildung in Jahren\", y = \"Einkommen in CHF\") +\n  theme_classic(base_size = 10)\n\nggsave(here(\"Abbildungen\", \"abb_3_2.eps\"), abb, width = 12, height = 8, units = \"cm\")\n\n\n\n\n5 Literatur\n\n\nR Core Team. (2026). R: A language and environment for statistical computing (Version 4.6.1) [Software]. R Foundation for Statistical Computing. https://doi.org/10.32614/R.manuals\n\n\nWickham, H. (2016). ggplot2: Elegant graphics for data analysis (2. Aufl.). Springer. https://doi.org/10.1007/978-3-319-24277-4",
+    "crumbs": [
+      "Praxisbeispiele",
+      "Fiktives Beispiel 1: Bildung und Einkommen"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Webseite Test Github Pages",
+    "section": "",
+    "text": "Hinweis\n\n\n\nDies ist eine Testseite mit fiktiven Daten. Sie dient dazu, den Aufbau und die Veröffentlichung über GitHub Pages auszuprobieren.\nAuf dieser Seite finden Sie den R-Code für fiktive Beispiele und deren Abbildungen. Jede Seite zeigt Code, Ausgabe und Erläuterung nebeneinander.",
+    "crumbs": [
+      "Startseite"
+    ]
+  },
+  {
+    "objectID": "index.html#übersicht",
+    "href": "index.html#übersicht",
+    "title": "Webseite Test Github Pages",
+    "section": "Übersicht",
+    "text": "Übersicht\n\n\n\nSeite\nInhalt\n\n\n\n\nBildung und Einkommen\nStreudiagramm, lineare Regression\n\n\nAlter und Lebenszufriedenheit\nquadratische Regression\n\n\nSimulierte Zusammenhänge\nAbbildungen mit simulierten Daten",
+    "crumbs": [
+      "Startseite"
+    ]
+  },
+  {
+    "objectID": "index.html#selbst-mit-dem-code-arbeiten",
+    "href": "index.html#selbst-mit-dem-code-arbeiten",
+    "title": "Webseite Test Github Pages",
+    "section": "Selbst mit dem Code arbeiten",
+    "text": "Selbst mit dem Code arbeiten\n\nDas Projekt über den Download-Button oben rechts als ZIP-Datei herunterladen und entpacken.\nDaten einfügen (nicht in diesem Test, da nur simulierte Daten)\nDie Datei regression-pages-test.Rproj in RStudio öffnen.\nEine .qmd-Datei öffnen und auf Render klicken.\n\nAlle Pfade im Code laufen über here(); ein setwd() ist nicht nötig.",
+    "crumbs": [
+      "Startseite"
+    ]
+  },
+  {
+    "objectID": "01_Beispielanwendungen/zufriedenheit_alter.html",
+    "href": "01_Beispielanwendungen/zufriedenheit_alter.html",
+    "title": "Fiktives Beispiel 2: Alter und Lebenszufriedenheit",
+    "section": "",
+    "text": "1 Packages und Daten\n\nlibrary(ggplot2)   # Grafiken (Wickham, 2016)\nlibrary(here)      # Dateipfade relativ zum Projektordner\n\nbefragung &lt;- read.csv(here(\"Daten\", \"mock_befragung.csv\"))\n\n\n\n2 Mittelwerte nach Alter\nDie Lebenszufriedenheit verläuft nicht linear über das Alter: Sie sinkt bis ins mittlere Erwachsenenalter und steigt danach wieder an (Abbildung 1).\n\nbefragung$altersgruppe &lt;- cut(befragung$alter, breaks = seq(15, 80, by = 5))\nmittel &lt;- aggregate(zufriedenheit ~ altersgruppe, data = befragung, FUN = mean)\n\nggplot(mittel, aes(x = altersgruppe, y = zufriedenheit)) +\n  geom_point(size = 3) +\n  labs(x = \"Altersgruppe (UV)\", y = \"Mittlere Lebenszufriedenheit (AV)\") +\n  theme_minimal() +\n  theme(axis.text.x = element_text(angle = 45, hjust = 1))\n\n\n\n\n\n\n\nAbbildung 1: Mittlere Lebenszufriedenheit nach Altersgruppen (fiktive Daten)\n\n\n\n\n\n\n\n3 Quadratisches Modell\n\nmodell_lin  &lt;- lm(zufriedenheit ~ alter, data = befragung)\nmodell_quad &lt;- lm(zufriedenheit ~ alter + I(alter^2), data = befragung)\nsummary(modell_quad)\n\n\nCall:\nlm(formula = zufriedenheit ~ alter + I(alter^2), data = befragung)\n\nResiduals:\n    Min      1Q  Median      3Q     Max \n-4.4149 -0.8630  0.1031  1.1370  2.5851 \n\nCoefficients:\n              Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)  9.3926413  0.6152741  15.266  &lt; 2e-16 ***\nalter       -0.0797144  0.0273063  -2.919  0.00378 ** \nI(alter^2)   0.0008032  0.0002727   2.946  0.00348 ** \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 1.452 on 297 degrees of freedom\nMultiple R-squared:  0.0284,    Adjusted R-squared:  0.02186 \nF-statistic: 4.341 on 2 and 297 DF,  p-value: 0.01385\n\n# Tiefpunkt der Parabel: -b1 / (2 * b2)\ntiefpunkt &lt;- -coef(modell_quad)[2] / (2 * coef(modell_quad)[3])\nround(tiefpunkt, 1)\n\nalter \n 49.6 \n\n\nDas lineare Modell erklärt 0 % der Varianz, das quadratische 2.8 %. Der Tiefpunkt liegt bei etwa 50 Jahren.\n\nggplot(befragung, aes(x = alter, y = zufriedenheit)) +\n  geom_jitter(height = 0.2, alpha = 0.3) +\n  geom_smooth(method = \"lm\", formula = y ~ x, se = FALSE,\n              aes(colour = \"linear\")) +\n  geom_smooth(method = \"lm\", formula = y ~ x + I(x^2), se = FALSE,\n              aes(colour = \"quadratisch\")) +\n  scale_colour_manual(values = c(linear = \"grey50\", quadratisch = \"firebrick\"),\n                      name = \"Modell\") +\n  labs(x = \"Alter in Jahren (UV)\", y = \"Lebenszufriedenheit (AV)\") +\n  theme_minimal()\n\n\n\n\n\n\n\nAbbildung 2: Lineare und quadratische Regression im Vergleich\n\n\n\n\n\n\n\n4 Literatur\n\n\nR Core Team. (2026). R: A language and environment for statistical computing (Version 4.6.1) [Software]. R Foundation for Statistical Computing. https://doi.org/10.32614/R.manuals\n\n\nWickham, H. (2016). ggplot2: Elegant graphics for data analysis (2. Aufl.). Springer. https://doi.org/10.1007/978-3-319-24277-4",
+    "crumbs": [
+      "Praxisbeispiele",
+      "Fiktives Beispiel 2: Alter und Lebenszufriedenheit"
+    ]
+  }
+]

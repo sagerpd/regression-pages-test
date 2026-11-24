@@ -1,0 +1,69 @@
+---
+title: "Simulierte Zusammenhänge"
+subtitle: "Most interesting subtitle ici"
+nocite: |
+  @R-base, @wickham2016
+---
+
+# Packages
+
+```{r}
+#| label: setup
+#| message: false
+
+library(ggplot2)   # Grafiken (Wickham, 2016)
+```
+
+# Unterschiedliche Erklärungskraft
+
+Alle drei Datensätze haben dieselbe wahre Steigung (0.5). Sie unterscheiden sich
+nur in der Streuung der Residuen und damit im R².
+
+```{r}
+#| label: daten
+
+set.seed(161)
+n <- 150
+x <- runif(n, 0, 10)
+
+streuung <- c("gering" = 0.5, "mittel" = 1.5, "gross" = 3)
+sim <- do.call(rbind, lapply(names(streuung), function(s) {
+  data.frame(x = x, y = 2 + 0.5 * x + rnorm(n, 0, streuung[[s]]), streuung = s)
+}))
+sim$streuung <- factor(sim$streuung, levels = names(streuung))
+
+# R2 je Datensatz
+r2 <- sapply(split(sim, sim$streuung),
+             function(d) summary(lm(y ~ x, data = d))$r.squared)
+round(r2, 2)
+```
+
+```{r}
+#| label: fig-r2
+#| fig-cap: "Gleiche Steigung, unterschiedliches R² (simulierte Daten)"
+#| fig-alt: "Accurate Alt-Text"
+#| fig-width: 9
+#| fig-height: 3.5
+
+beschriftung <- data.frame(streuung = factor(names(r2), levels = names(streuung)),
+                           text = paste0("R² = ", round(r2, 2)))
+
+ggplot(sim, aes(x, y)) +
+  geom_point(alpha = 0.4, size = 1) +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, colour = "firebrick") +
+  geom_text(data = beschriftung, aes(x = 1, y = 12, label = text),
+            hjust = 0, inherit.aes = FALSE) +
+  facet_wrap(~ streuung, labeller = labeller(streuung = function(s)
+    paste("Streuung", s))) +
+  labs(x = "X", y = "Y") +
+  theme_minimal()
+```
+
+Die Steigung ist in allen drei Fällen gleich, die Erklärungskraft aber nicht.
+Wie stark ein Zusammenhang ist, sagt also nichts darüber, wie gut er die
+Streuung der abhängigen Variable erklärt.
+
+# Literatur
+
+::: {#refs}
+:::

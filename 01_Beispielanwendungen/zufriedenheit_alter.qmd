@@ -1,0 +1,78 @@
+---
+title: "Fiktives Beispiel 2: Alter und Lebenszufriedenheit"
+subtitle: "Even more interesting subtitle inserted here"
+nocite: |
+  @R-base, @wickham2016
+---
+
+# Packages und Daten
+
+```{r}
+#| label: setup
+#| message: false
+
+library(ggplot2)   # Grafiken (Wickham, 2016)
+library(here)      # Dateipfade relativ zum Projektordner
+
+befragung <- read.csv(here("Daten", "mock_befragung.csv"))
+```
+
+# Mittelwerte nach Alter
+
+Die Lebenszufriedenheit verläuft nicht linear über das Alter: Sie sinkt bis ins
+mittlere Erwachsenenalter und steigt danach wieder an (@fig-mittelwerte).
+
+```{r}
+#| label: fig-mittelwerte
+#| fig-cap: "Mittlere Lebenszufriedenheit nach Altersgruppen (fiktive Daten)"
+#| fig-alt: "Accurate Alttext"
+
+befragung$altersgruppe <- cut(befragung$alter, breaks = seq(15, 80, by = 5))
+mittel <- aggregate(zufriedenheit ~ altersgruppe, data = befragung, FUN = mean)
+
+ggplot(mittel, aes(x = altersgruppe, y = zufriedenheit)) +
+  geom_point(size = 3) +
+  labs(x = "Altersgruppe (UV)", y = "Mittlere Lebenszufriedenheit (AV)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+# Quadratisches Modell
+
+```{r}
+#| label: modell
+
+modell_lin  <- lm(zufriedenheit ~ alter, data = befragung)
+modell_quad <- lm(zufriedenheit ~ alter + I(alter^2), data = befragung)
+summary(modell_quad)
+
+# Tiefpunkt der Parabel: -b1 / (2 * b2)
+tiefpunkt <- -coef(modell_quad)[2] / (2 * coef(modell_quad)[3])
+round(tiefpunkt, 1)
+```
+
+Das lineare Modell erklärt `r round(100 * summary(modell_lin)$r.squared, 1)` %
+der Varianz, das quadratische `r round(100 * summary(modell_quad)$r.squared, 1)` %.
+Der Tiefpunkt liegt bei etwa `r round(tiefpunkt)` Jahren.
+
+```{r}
+#| label: fig-parabel
+#| fig-cap: "Lineare und quadratische Regression im Vergleich"
+#| fig-alt: "Streudiagramm von Alter und Lebenszufriedenheit mit zwei Regressionslinien: einer flachen Geraden und einer U-förmigen Parabel, die den Verlauf der Daten besser trifft."
+
+ggplot(befragung, aes(x = alter, y = zufriedenheit)) +
+  geom_jitter(height = 0.2, alpha = 0.3) +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE,
+              aes(colour = "linear")) +
+  geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = FALSE,
+              aes(colour = "quadratisch")) +
+  scale_colour_manual(values = c(linear = "grey50", quadratisch = "firebrick"),
+                      name = "Modell") +
+  labs(x = "Alter in Jahren (UV)", y = "Lebenszufriedenheit (AV)") +
+  theme_minimal()
+```
+
+# Literatur
+
+::: {#refs}
+:::

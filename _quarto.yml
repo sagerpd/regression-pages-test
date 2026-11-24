@@ -1,0 +1,63 @@
+project:
+  type: website
+  # Die fertige Webseite landet im Ordner docs/. GitHub Pages kann eine Seite
+  # direkt aus diesem Ordner anzeigen (Settings -> Pages -> Branch main, /docs).
+  output-dir: docs
+  # Nur diese Dateien werden zur Webseite gerendert
+  render:
+    - index.qmd
+    - "01_Beispielanwendungen/*.qmd"
+    - "02_Illustrationen/*.qmd"
+  # .nojekyll verhindert, dass GitHub die Seite zusätzlich mit Jekyll verarbeitet
+  # (sonst fehlen z. B. Ordner, die mit einem Unterstrich beginnen)
+  resources:
+    - .nojekyll
+
+website:
+  title: "Bivariate Regression – Begleitmaterial (Test)"
+  # Adresse der fertigen Seite: https://<benutzername>.github.io/<repo-name>/
+  site-url: https://sagerpd.github.io/regression-pages-test/
+  repo-url: https://github.com/sagerpd/regression-pages-test
+  repo-branch: main
+  # Fügt auf jeder Seite einen Link "Quellcode anzeigen" (zur .qmd auf GitHub) ein
+  repo-actions: [source]
+  search: true
+  navbar:
+    right:
+      - icon: download
+        href: https://github.com/sagerpd/regression-pages-test/archive/refs/heads/main.zip
+        aria-label: Projekt als ZIP herunterladen
+      - icon: github
+        href: https://github.com/sagerpd/regression-pages-test
+        aria-label: Repository auf GitHub
+  sidebar:
+    style: docked
+    contents:
+      - text: "Startseite"
+        href: index.qmd
+      - section: "Praxisbeispiele"
+        contents:
+          - 01_Beispielanwendungen/einkommen_bildung.qmd
+          - 01_Beispielanwendungen/zufriedenheit_alter.qmd
+      - section: "Illustrationen"
+        contents:
+          - 02_Illustrationen/simulationen.qmd
+  page-footer:
+    left: "Testseite mit fiktiven Daten"
+    right: "Erstellt mit [Quarto](https://quarto.org)"
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-title: "Inhalt"
+    number-sections: true
+    code-tools: true
+    code-copy: true
+    fig-width: 7
+    fig-height: 4.5
+
+lang: de
+bibliography: Referenzen/literatur.bib
+csl: Referenzen/apa.csl
+link-citations: true
